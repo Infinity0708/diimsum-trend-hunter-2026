@@ -61,8 +61,11 @@ python run.py \
 查看结果：
 
 ```bash
-python -m json.tool outputs/trends-local.json
+python -m json.tool --no-ensure-ascii outputs/trends-local.json
 ```
+
+`--no-ensure-ascii` 只影响终端显示，让中文直接显示而不是变成 `\u73a9\u5bb6`；
+输出文件本身始终是 UTF-8 中文。
 
 运行测试：
 
