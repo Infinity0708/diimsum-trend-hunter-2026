@@ -3,9 +3,6 @@
 This repository is my solution to Diimsum's 2026 Trend Hunter challenge. It detects newly forming stories in noisy Chinese game-community messages while enforcing a strict historical `--as-of` boundary.
 
 ## Run
-
-Python 3.11+ is recommended.
-
 ```bash
 python -m venv .venv
 source .venv/bin/activate
@@ -80,9 +77,6 @@ Tests cover Traditional/Simplified normalisation, reply context, the time bounda
 
 ## AI-use disclosure
 
-OpenAI Codex was used as a coding partner for implementation, tests, backtesting and editing this explanation. The submitted runtime can optionally use the OpenAI Responses API for one structured semantic-refinement call; all temporal candidate generation and anti-manipulation measurements are local and auditable. No API key or invitation credential is stored in this repository.
+ChatGPT was used as a coding partner for implementation, tests, backtesting and editing this README.md explanation. The submitted runtime can optionally use the OpenAI Responses API for one structured semantic-refinement call; all temporal candidate generation and anti-manipulation measurements are local and auditable. No API key or invitation credential is stored in this repository.
 
 The five language warm-ups are in [WARMUP.md](WARMUP.md).
-
-For a from-scratch Chinese walkthrough of the code, design decisions, limitations, and interview
-questions, see [docs/PROJECT_WALKTHROUGH_ZH.md](docs/PROJECT_WALKTHROUGH_ZH.md).
