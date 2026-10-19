@@ -26,13 +26,14 @@ The output contains at most eight trends and uses only the required fields. Diag
 The unit of meaning is a player voice, not a keyword. The pipeline:
 
 1. Parses timestamps into Hong Kong time and drops every message after `--as-of` before doing any fitting or counting.
-2. Normalises Unicode and Traditional/Simplified Chinese with OpenCC, removes platform markup, but preserves sentiment cues such as `doge`.
-3. Reconstructs short organic replies such as “确实” from their parent. A short reply to an official PV or announcement is deliberately not promoted into independent evidence.
-4. Mines character n-grams from the trailing 42 days. Character features work for unsegmented Chinese, typos and newly invented words without a predefined topic list.
-5. Samples four kinds of temporal change separately: seven-day growth, seven-day decline, recent novelty, and three-day acceleration. Balanced sampling prevents one giant spam burst from occupying the whole candidate set.
-6. Groups phrases by message co-occurrence, then measures onset, 3/7/14-day movement, active days, authors, channels, peak concentration and repeated templates.
-7. Assigns a provisional status. A concentrated incident that collapses is `one-off`; a cross-platform build is `growing`; a single-platform wave of many one-use accounts repeating a handful of templates is `not real`.
-8. Selects representative `voice_ids` with platform and author diversity. When an OpenAI key is present, a single Structured Outputs call merges synonymous candidates, interprets slang/sarcasm, and writes concise bilingual labels and a studio-actionable explanation. The model sees only candidate evidence already inside the historical boundary.
+2. Loads `versions.csv` when it is beside the input or in the bundled data directory, and exposes only calendar rows on or before `--as-of`.
+3. Normalises Unicode and Traditional/Simplified Chinese with OpenCC, removes platform markup, but preserves sentiment cues such as `doge`.
+4. Reconstructs short organic replies such as “确实” from their parent. A short reply to an official PV or announcement is deliberately not promoted into independent evidence.
+5. Mines character n-grams from the trailing 42 days. Character features work for unsegmented Chinese, typos and newly invented words without a predefined topic list.
+6. Samples four kinds of temporal change separately: seven-day growth, seven-day decline, recent novelty, and three-day acceleration. Balanced sampling prevents one giant spam burst from occupying the whole candidate set.
+7. Groups phrases by message co-occurrence, then measures onset, 3/7/14-day movement, active days, authors, channels, peak concentration and repeated templates.
+8. Assigns a provisional status. A concentrated incident that collapses is `one-off`; a cross-platform build is `growing`; a single-platform wave of many one-use accounts repeating a handful of templates is `not real`.
+9. Selects representative `voice_ids` with platform and author diversity. When an OpenAI key is present, a single Structured Outputs call merges synonymous candidates, interprets slang/sarcasm, and writes concise bilingual labels and a studio-actionable explanation. The model sees only candidate evidence and calendar events already inside the historical boundary. A high-confidence manipulation campaign is deterministically retained if semantic refinement omits it.
 
 This is intentionally hybrid. Statistics decide *when the shape changed*; language understanding decides *what players mean*. The LLM is not asked to read or summarise all 48,000 messages, which keeps cost bounded and prevents volume from substituting for evidence.
 

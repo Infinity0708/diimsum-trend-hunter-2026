@@ -6,6 +6,7 @@ from datetime import date, datetime, timedelta, timezone
 from trend_hunter.core import (
     Voice,
     discover_candidates,
+    load_version_events,
     load_voices,
     normalize_text,
     render_local_trends,
@@ -59,6 +60,24 @@ def test_loader_blocks_future_and_adds_organic_reply_context(tmp_path) -> None:
     assert [voice.id for voice in voices] == ["parent", "reply"]
     assert "太肝" in voices[1].normalized
     assert "reply to" in voices[1].display_text
+
+
+def test_version_calendar_blocks_future_events(tmp_path) -> None:
+    voices_path = tmp_path / "voices.jsonl"
+    voices_path.write_text("", encoding="utf-8")
+    versions = tmp_path / "versions.csv"
+    versions.write_text(
+        "date,version,notes\n"
+        "2026-07-21,2.0,new character\n"
+        "2026-07-31,2.1,maintenance\n",
+        encoding="utf-8",
+    )
+
+    events = load_version_events(voices_path, date(2026, 7, 24))
+
+    assert events == [
+        {"date": "2026-07-21", "version": "2.0", "notes": "new character"}
+    ]
 
 
 def _voice(index: int, day: date, text: str, platform: str) -> Voice:

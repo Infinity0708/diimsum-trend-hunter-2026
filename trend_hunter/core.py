@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import json
 import math
 import re
@@ -328,6 +329,33 @@ def load_voices(path: str | Path, as_of: date) -> list[Voice]:
     voices.sort(key=lambda v: (v.created_at, v.id))
     _add_reply_context(voices)
     return voices
+
+
+def load_version_events(voices_path: str | Path, as_of: date) -> list[dict[str, str]]:
+    """Load known studio events without exposing calendar rows after `as_of`."""
+
+    input_sibling = Path(voices_path).resolve().with_name("versions.csv")
+    bundled = Path(__file__).resolve().parents[1] / "data" / "raw" / "versions.csv"
+    source = next((path for path in (input_sibling, bundled) if path.is_file()), None)
+    if source is None:
+        return []
+
+    events: list[dict[str, str]] = []
+    with source.open(encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle):
+            try:
+                event_day = date.fromisoformat(row["date"])
+            except (KeyError, TypeError, ValueError) as exc:
+                raise ValueError(f"Invalid versions.csv row: {row}") from exc
+            if event_day <= as_of:
+                events.append(
+                    {
+                        "date": event_day.isoformat(),
+                        "version": str(row.get("version") or ""),
+                        "notes": str(row.get("notes") or ""),
+                    }
+                )
+    return events
 
 
 def _add_reply_context(voices: list[Voice]) -> None:
@@ -831,7 +859,10 @@ def discover_candidates(voices: list[Voice], as_of: date, limit: int = 18) -> li
 def _local_labels(candidate: Candidate, voices: list[Voice]) -> tuple[str, str, str]:
     evidence = _candidate_evidence(candidate, voices)
     if candidate.status_hint == "not real":
-        phrase = _readable_phrase(candidate)
+        # Seeds are already ordered by discovery score. For a coordinated
+        # campaign, its leading phrase is usually the campaign label or slogan;
+        # choosing the longest overlapping n-gram can produce duplicated text.
+        phrase = candidate.seeds[0].strip() or _readable_phrase(candidate)
         return (
             f"疑似协同刷屏：「{phrase}」",
             f"Suspiciously coordinated posting around ‘{phrase}’",

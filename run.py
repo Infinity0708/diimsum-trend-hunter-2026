@@ -7,7 +7,12 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from trend_hunter.core import discover_candidates, load_voices, render_local_trends
+from trend_hunter.core import (
+    discover_candidates,
+    load_version_events,
+    load_voices,
+    render_local_trends,
+)
 from trend_hunter.llm import refine_with_openai
 
 
@@ -35,6 +40,7 @@ def main() -> int:
     args = parse_args()
     try:
         voices = load_voices(args.input, args.as_of)
+        version_events = load_version_events(args.input, args.as_of)
         candidates = discover_candidates(voices, args.as_of)
         if args.debug:
             for candidate in candidates:
@@ -43,7 +49,11 @@ def main() -> int:
                     file=sys.stderr,
                 )
 
-        trends = None if args.no_llm else refine_with_openai(candidates, voices, args.as_of)
+        trends = (
+            None
+            if args.no_llm
+            else refine_with_openai(candidates, voices, args.as_of, version_events)
+        )
         if trends is None:
             trends = render_local_trends(candidates, voices, args.as_of)
 
